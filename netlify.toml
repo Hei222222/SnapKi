@@ -1,0 +1,12 @@
+[build]
+  command = "npx expo export --platform web"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+[dev]
+  command = "npx expo start --web"
+  targetPort = 8081
+  port = 8888
+  framework = "#custom" 
