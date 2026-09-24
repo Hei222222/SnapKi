@@ -1,7 +1,7 @@
 import type { HandlerEvent, HandlerContext } from '@netlify/functions';
 
 const allowedOrigins = new Set([
-  'https://snapkihk.netlify.app',
+  'https://snapki.netlify.app',
   'http://localhost:8081',
   'http://localhost:19006',
 ]);
@@ -137,7 +137,11 @@ export async function handler(event: HandlerEvent, _context: HandlerContext) {
     return response(405, { error: '只支援 POST。' }, origin);
   }
 
-  if (!allowedOrigins.has(origin)) {
+  const isAllowedOrigin =
+    allowedOrigins.has(origin) ||
+    /^https:\/\/[a-z0-9-]+--snapki\.netlify\.app$/i.test(origin);
+
+  if (!isAllowedOrigin) {
     return response(403, { error: '不允許的來源。' }, origin);
   }
 
