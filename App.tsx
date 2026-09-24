@@ -92,12 +92,12 @@ export default function App() {
 
   useEffect(() => { void loadData(); }, []);
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-    setUser(firebaseUser);
-  });
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
 
-  return unsubscribe;
-}, []);
+    return unsubscribe;
+  }, []);
   useEffect(() => { if (ready) void AsyncStorage.setItem(STORAGE_TRANSACTIONS, JSON.stringify(transactions)); }, [transactions, ready]);
   useEffect(() => { if (ready) void AsyncStorage.setItem(STORAGE_FAVORITES, JSON.stringify(favorites)); }, [favorites, ready]);
   useEffect(() => { if (ready) void AsyncStorage.setItem(STORAGE_BUDGET, String(monthlyBudget)); }, [monthlyBudget, ready]);
@@ -122,130 +122,130 @@ export default function App() {
   function updateFavorite(value: Favorite): void { setFavorites((current) => current.map((item: Favorite) => item.id === value.id ? value : item)); }
   function deleteTransaction(id: string): void { setTransactions((current) => current.filter((item: Transaction) => item.id !== id)); setEditingTransaction(null); }
   function deleteFavorite(id: string): void { setFavorites((current) => current.filter((item: Favorite) => item.id !== id)); setEditingFavorite(null); }
-function clearAllData(): void {
-  const confirmed = window.confirm(
-    '確定要清除所有本機資料嗎？\n\n這會刪除：\n• 所有交易\n• 所有常用交易\n• 總月預算\n• 分類預算\n• 智慧分類記憶\n\n此動作不能還原。'
-  );
+  function clearAllData(): void {
+    const confirmed = window.confirm(
+      '確定要清除所有本機資料嗎？\n\n這會刪除：\n• 所有交易\n• 所有常用交易\n• 總月預算\n• 分類預算\n• 智慧分類記憶\n\n此動作不能還原。'
+    );
 
-  if (!confirmed) {
-    return;
-  }
-
-  setTransactions([]);
-  setFavorites([]);
-  setMonthlyBudget(0);
-  setCategoryBudgets({});
-  setMerchantMemories([]);
-
-  void AsyncStorage.multiRemove([
-    STORAGE_TRANSACTIONS,
-    STORAGE_FAVORITES,
-    STORAGE_BUDGET,
-    STORAGE_CATEGORY_BUDGETS,
-    '@snapki_transactions_v3',
-    '@snapki_budget_v3',
-    '@snapki_transactions_v2',
-    '@snapki_budget_v2',
-    '@snapki_transactions_v1',
-    '@snapki_budget_v1',
-    '@snapki_merchant_memory_v1',
-  ]);
-
-  setShowSettingsModal(false);
-  setShowMemoryModal(false);
-
-  Alert.alert(
-    '已清除',
-    '本機交易、常用交易、預算及分類記憶已清除。'
-  );
-}
-async function backupToCloud(): Promise<void> {
-  if (!user) {
-    Alert.alert('請先登入', '請先以 Google 登入才可以備份資料。');
-    return;
-  }
-
-  try {
-    await uploadCloudBackup(user.uid, {
-      transactions,
-      favorites,
-      monthlyBudget,
-      categoryBudgets,
-      merchantMemories,
-    });
-
-    Alert.alert('備份完成', '你的資料已安全備份到雲端。');
-  } catch (error) {
-    console.error('雲端備份失敗：', error);
-    Alert.alert('備份失敗', '未能上傳資料，請檢查網路後再試。');
-  }
-}
-
-async function restoreFromCloud(): Promise<void> {
-  if (!user) {
-    Alert.alert('請先登入', '請先以 Google 登入才可以還原資料。');
-    return;
-  }
-
-  const confirmed = window.confirm(
-    '確定要從雲端還原嗎？\n\n目前裝置上的交易、常用交易、預算和分類記憶將會被雲端備份覆蓋。此動作不能還原。'
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
-  try {
-    const backup = await downloadCloudBackup(user.uid);
-
-    if (!backup) {
-      Alert.alert(
-        '找不到備份',
-        '此 Google 帳戶目前還沒有 Snap記雲端備份。'
-      );
+    if (!confirmed) {
       return;
     }
 
-    setTransactions(
-      Array.isArray(backup.transactions)
-        ? (backup.transactions as Transaction[])
-        : []
-    );
+    setTransactions([]);
+    setFavorites([]);
+    setMonthlyBudget(0);
+    setCategoryBudgets({});
+    setMerchantMemories([]);
 
-    setFavorites(
-      Array.isArray(backup.favorites)
-        ? (backup.favorites as Favorite[])
-        : []
-    );
+    void AsyncStorage.multiRemove([
+      STORAGE_TRANSACTIONS,
+      STORAGE_FAVORITES,
+      STORAGE_BUDGET,
+      STORAGE_CATEGORY_BUDGETS,
+      '@snapki_transactions_v3',
+      '@snapki_budget_v3',
+      '@snapki_transactions_v2',
+      '@snapki_budget_v2',
+      '@snapki_transactions_v1',
+      '@snapki_budget_v1',
+      '@snapki_merchant_memory_v1',
+    ]);
 
-    setMonthlyBudget(Number(backup.monthlyBudget) || 0);
+    setShowSettingsModal(false);
+    setShowMemoryModal(false);
 
-    setCategoryBudgets(
-      backup.categoryBudgets &&
-      typeof backup.categoryBudgets === 'object'
-        ? (backup.categoryBudgets as CategoryBudgets)
-        : {}
-    );
-
-    setMerchantMemories(
-      Array.isArray(backup.merchantMemories)
-        ? (backup.merchantMemories as LearnedMerchantCategory[])
-        : []
-    );
-
-    Alert.alert('還原完成', '已從雲端還原你的 Snap記資料。');
-    } catch (error) {
-    console.error('雲端還原失敗：', error);
-    Alert.alert('還原失敗', '未能讀取雲端備份，請檢查網路後再試。');
-  }
-
-  function scanReceipt(): void {
     Alert.alert(
-      '掃描收據',
-      '下一步會加入圖片選擇和 Azure 辨識功能。'
+      '已清除',
+      '本機交易、常用交易、預算及分類記憶已清除。'
     );
   }
-}
+  async function backupToCloud(): Promise<void> {
+    if (!user) {
+      Alert.alert('請先登入', '請先以 Google 登入才可以備份資料。');
+      return;
+    }
+
+    try {
+      await uploadCloudBackup(user.uid, {
+        transactions,
+        favorites,
+        monthlyBudget,
+        categoryBudgets,
+        merchantMemories,
+      });
+
+      Alert.alert('備份完成', '你的資料已安全備份到雲端。');
+    } catch (error) {
+      console.error('雲端備份失敗：', error);
+      Alert.alert('備份失敗', '未能上傳資料，請檢查網路後再試。');
+    }
+  }
+
+  async function restoreFromCloud(): Promise<void> {
+    if (!user) {
+      Alert.alert('請先登入', '請先以 Google 登入才可以還原資料。');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      '確定要從雲端還原嗎？\n\n目前裝置上的交易、常用交易、預算和分類記憶將會被雲端備份覆蓋。此動作不能還原。'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const backup = await downloadCloudBackup(user.uid);
+
+      if (!backup) {
+        Alert.alert(
+          '找不到備份',
+          '此 Google 帳戶目前還沒有 Snap記雲端備份。'
+        );
+        return;
+      }
+
+      setTransactions(
+        Array.isArray(backup.transactions)
+          ? (backup.transactions as Transaction[])
+          : []
+      );
+
+      setFavorites(
+        Array.isArray(backup.favorites)
+          ? (backup.favorites as Favorite[])
+          : []
+      );
+
+      setMonthlyBudget(Number(backup.monthlyBudget) || 0);
+
+      setCategoryBudgets(
+        backup.categoryBudgets &&
+          typeof backup.categoryBudgets === 'object'
+          ? (backup.categoryBudgets as CategoryBudgets)
+          : {}
+      );
+
+      setMerchantMemories(
+        Array.isArray(backup.merchantMemories)
+          ? (backup.merchantMemories as LearnedMerchantCategory[])
+          : []
+      );
+
+      Alert.alert('還原完成', '已從雲端還原你的 Snap記資料。');
+    } catch (error) {
+      console.error('雲端還原失敗：', error);
+      Alert.alert('還原失敗', '未能讀取雲端備份，請檢查網路後再試。');
+    }
+
+    function scanReceipt(): void {
+      Alert.alert(
+        '掃描收據',
+        '下一步會加入圖片選擇和 Azure 辨識功能。'
+      );
+    }
+  }
 
   const monthTransactions = useMemo<Transaction[]>(() => transactions.filter((item: Transaction) => isCurrentMonth(item.date)), [transactions]);
   const monthIncome = useMemo<number>(() => monthTransactions.filter((item: Transaction) => item.type === 'income').reduce((sum: number, item: Transaction) => sum + item.amount, 0), [monthTransactions]);
@@ -255,229 +255,232 @@ async function restoreFromCloud(): Promise<void> {
   const categoryTotals = useMemo<Record<ExpenseCategory, number>>(() => { const result = Object.fromEntries(expenseCategories.map((category) => [category, 0])) as Record<ExpenseCategory, number>; monthTransactions.filter((item: Transaction) => item.type === 'expense').forEach((item: Transaction) => { result[item.category as ExpenseCategory] += item.amount; }); return result; }, [monthTransactions]);
   const topCategory = useMemo<{ category: ExpenseCategory; amount: number }>(() => expenseCategories.map((category: ExpenseCategory) => ({ category, amount: categoryTotals[category] })).sort((a, b) => b.amount - a.amount)[0], [categoryTotals]);
   const sortedTransactions = useMemo<Transaction[]>(() => [...transactions].sort((a: Transaction, b: Transaction) => `${b.date}${b.id}`.localeCompare(`${a.date}${a.id}`)), [transactions]);
-    async function scanReceipt(): Promise<void> {
-  setIsScanningReceipt(true);
+  async function scanReceipt(): Promise<void> {
+    setIsScanningReceipt(true);
 
-  try {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
-      base64: true,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 1,
+        base64: true,
+      });
 
-    if (result.canceled) {
-      setIsScanningReceipt(false);
-      return;
-    }
-
-    const image = result.assets[0];
-
-    if (!image.base64) {
-      window.alert('無法讀取圖片內容，請選擇另一張 JPG 或 PNG 圖片。');
-      setIsScanningReceipt(false);
-      return;
-    }
-
-    const dataUrl = `data:image/jpeg;base64,${image.base64}`;
-
-    console.log('收據圖片前綴：', dataUrl.slice(0, 40));
-    console.log('收據圖片字元數：', dataUrl.length);
-
-    const response = await fetch(
-      'https://snapkihk.netlify.app/.netlify/functions/scan-receipt',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageDataUrl: dataUrl,
-        }),
+      if (result.canceled) {
+        setIsScanningReceipt(false);
+        return;
       }
-    );
 
-    const data = await response.json();
+      const image = result.assets[0];
 
-    if (!response.ok || data.error) {
-      window.alert(`辨識失敗：${data.error || '無法辨識圖片，請重試。'}`);
-      return;
+      if (!image.base64) {
+        window.alert('無法讀取圖片內容，請選擇另一張 JPG 或 PNG 圖片。');
+        setIsScanningReceipt(false);
+        return;
+      }
+
+      const dataUrl = `data:image/jpeg;base64,${image.base64}`;
+
+      console.log('收據圖片前綴：', dataUrl.slice(0, 40));
+      console.log('收據圖片字元數：', dataUrl.length);
+
+      const response = await fetch(
+        'https://snapkihk.netlify.app/.netlify/functions/scan-receipt',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageDataUrl: dataUrl,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        window.alert(`辨識失敗：${data.error || '無法辨識圖片，請重試。'}`);
+        return;
+      }
+
+      const draft = data.draft;
+
+      if (!draft) {
+        window.alert('辨識結果不完整，請再試一次。');
+        return;
+      }
+
+      const expenseCategoryValues: ExpenseCategory[] = [
+        '交通',
+        '飲食',
+        '購物',
+        '娛樂',
+        '醫療',
+        '住屋',
+        '其他',
+      ];
+
+      const paymentMethodValues: PaymentMethod[] = [
+        'Apple Pay',
+        'AlipayHK',
+        'WeChat Pay HK',
+        'FPS',
+      ];
+
+      const category: ExpenseCategory = expenseCategoryValues.includes(
+        draft.category as ExpenseCategory
+      )
+        ? (draft.category as ExpenseCategory)
+        : '其他';
+
+      const paymentMethod: PaymentMethod = paymentMethodValues.includes(
+        draft.paymentMethod as PaymentMethod
+      )
+        ? (draft.paymentMethod as PaymentMethod)
+        : 'Apple Pay';
+
+      setReceiptDraft({
+        id: `receipt-draft-${Date.now()}`,
+        merchant: draft.merchant || '',
+        amount: Number(draft.amount) || 0,
+        date: /^\d{4}-\d{2}-\d{2}$/.test(draft.date || '')
+          ? draft.date
+          : dateKey(new Date()),
+        category,
+        paymentMethod,
+        source: '收據辨識',
+        type: 'expense',
+      });
+
+      setShowAddModal(true);
+
+      window.alert('辨識完成，已自動填入新增記帳表單；請核對後按「儲存」。');
+    } catch (error) {
+      console.error('掃描收據失敗：', error);
+      window.alert('掃描過程發生錯誤，請重試。');
+    } finally {
+      setIsScanningReceipt(false);
     }
-
-    const draft = data.draft;
-
-if (!draft) {
-  window.alert('辨識結果不完整，請再試一次。');
-  return;
-}
-
-const expenseCategoryValues: ExpenseCategory[] = [
-  '交通',
-  '飲食',
-  '購物',
-  '娛樂',
-  '醫療',
-  '住屋',
-  '其他',
-];
-
-const paymentMethodValues: PaymentMethod[] = [
-  'Apple Pay',
-  'AlipayHK',
-  'WeChat Pay HK',
-  'FPS',
-];
-
-const category: ExpenseCategory = expenseCategoryValues.includes(
-  draft.category as ExpenseCategory
-)
-  ? (draft.category as ExpenseCategory)
-  : '其他';
-
-const paymentMethod: PaymentMethod = paymentMethodValues.includes(
-  draft.paymentMethod as PaymentMethod
-)
-  ? (draft.paymentMethod as PaymentMethod)
-  : 'Apple Pay';
-
-setReceiptDraft({
-  id: `receipt-draft-${Date.now()}`,
-  merchant: draft.merchant || '',
-  amount: Number(draft.amount) || 0,
-  date: /^\d{4}-\d{2}-\d{2}$/.test(draft.date || '')
-    ? draft.date
-    : dateKey(new Date()),
-  category,
-  paymentMethod,
-  source: '收據辨識',
-  type: 'expense',
-});
-
-setShowAddModal(true);
-
-window.alert('辨識完成，已自動填入新增記帳表單；請核對後按「儲存」。');
-  } catch (error) {
-    console.error('掃描收據失敗：', error);
-    window.alert('掃描過程發生錯誤，請重試。');
-  } finally {
-    setIsScanningReceipt(false);
   }
-}
   if (!ready) return <SafeAreaView style={styles.safeArea}><StatusBar barStyle="dark-content" /><View style={styles.loading}><Text style={styles.loadingText}>正在開啟 Snap記…</Text></View></SafeAreaView>;
   return <SafeAreaView style={styles.safeArea}><StatusBar barStyle="dark-content" /><View style={styles.app}>{activeTab === '總覽' && <HomeScreen monthIncome={monthIncome} monthExpense={monthExpense} monthBalance={monthBalance} todayExpense={todayExpense} monthCount={monthTransactions.length} transactions={sortedTransactions} favorites={favorites} topCategory={topCategory} onAdd={() => setShowAddModal(true)} onAddFavorite={() => setShowFavoriteModal(true)} onUseFavorite={(favorite: Favorite) => addTransaction({ merchant: favorite.merchant, amount: favorite.amount, date: dateKey(new Date()), category: favorite.category, paymentMethod: favorite.paymentMethod, source: '常用交易', type: favorite.type })} onEditFavorite={(favorite: Favorite) => setEditingFavorite(favorite)} onDemoApplePay={() => addTransaction({ merchant: 'MTR Corporation', amount: 12, date: dateKey(new Date()), category: '交通', paymentMethod: 'Apple Pay', source: 'Apple Pay Shortcut（模擬）', type: 'expense' })} onEdit={(item: Transaction) => setEditingTransaction(item)} onOpenSettings={() => setShowSettingsModal(true)} onOpenMemories={() => setShowMemoryModal(true)} />}{activeTab === '記帳' && (
-  <AddEditTransactionScreen
-  key="manual-add"
-  initialTransaction={undefined}
-  isReceiptDraft={false}
-  merchantMemories={merchantMemories}
-  onScanReceipt={scanReceipt}
-  isScanningReceipt={isScanningReceipt}
-  onRememberMerchant={rememberMerchant}
-  onSave={(value) => {
-    addTransaction(value);
-    setActiveTab('總覽');
-  }}
-/>
-)}{activeTab === '報表' && <ReportsScreen transactions={transactions} monthIncome={monthIncome} monthExpense={monthExpense} monthBalance={monthBalance} categoryTotals={categoryTotals} monthCount={monthTransactions.length} />}{activeTab === '預算' && <BudgetScreen monthExpense={monthExpense} monthlyBudget={monthlyBudget} categoryTotals={categoryTotals} categoryBudgets={categoryBudgets} onSaveBudget={setMonthlyBudget} onSaveCategoryBudgets={setCategoryBudgets} />}</View><BottomNavigation activeTab={activeTab} onChange={setActiveTab} /><Pressable style={styles.fab} onPress={() => setShowAddModal(true)}><Text style={styles.fabText}>＋</Text></Pressable>
+    <AddEditTransactionScreen
+      key="manual-add"
+      initialTransaction={undefined}
+      isReceiptDraft={false}
+      merchantMemories={merchantMemories}
+      onScanReceipt={scanReceipt}
+      isScanningReceipt={isScanningReceipt}
+      onRememberMerchant={rememberMerchant}
+      onSave={(value) => {
+        addTransaction(value);
+        setActiveTab('總覽');
+      }}
+    />
+  )}{activeTab === '報表' && <ReportsScreen transactions={transactions} monthIncome={monthIncome} monthExpense={monthExpense} monthBalance={monthBalance} categoryTotals={categoryTotals} monthCount={monthTransactions.length} />}{activeTab === '預算' && <BudgetScreen monthExpense={monthExpense} monthlyBudget={monthlyBudget} categoryTotals={categoryTotals} categoryBudgets={categoryBudgets} onSaveBudget={setMonthlyBudget} onSaveCategoryBudgets={setCategoryBudgets} />}</View><BottomNavigation activeTab={activeTab} onChange={setActiveTab} /><Pressable style={styles.fab} onPress={() => setShowAddModal(true)}><Text style={styles.fabText}>＋</Text></Pressable>
 
     <Modal
-  visible={showSettingsModal}
-  animationType="slide"
-  presentationStyle="pageSheet"
->
-  <SafeAreaView style={styles.modalSafeArea}>
-    <ModalHeader
-      title="設定"
-      onClose={() => setShowSettingsModal(false)}
-    />
+      visible={showSettingsModal}
+      animationType="slide"
+      presentationStyle="pageSheet"
+    >
+      <SafeAreaView style={styles.modalSafeArea}>
+        <ModalHeader
+          title="設定"
+          onClose={() => setShowSettingsModal(false)}
+        />
 
-    <SettingsScreen
-  onOpenMemories={() => {
-    setShowSettingsModal(false);
-    setShowMemoryModal(true);
-  }}
-  onClearAllData={() => {
-    setShowSettingsModal(false);
-    clearAllData();
-  }}
-  onSignInGoogle={() => {
-    void signInWithGoogle().catch((error) => {
-      console.error('Google 登入失敗：', error);
-      Alert.alert(
-        '登入失敗',
-        '未能完成 Google 登入，請確認 Firebase 的 Google 登入已啟用，然後再試一次。'
-      );
-    });
-  }}
-  onSignOut={() => {
-    void signOutUser().catch((error) => {
-      console.error('Google 登出失敗：', error);
-      Alert.alert('登出失敗', '請稍後再試。');
-    });
-  }}
-  onBackupToCloud={() => {
-    void backupToCloud();
-  }}
-  onRestoreFromCloud={() => {
-    void restoreFromCloud();
-  }}
-  user={user}
-/>
-  </SafeAreaView>
-</Modal>
+        <SettingsScreen
+          onOpenMemories={() => {
+            setShowSettingsModal(false);
+            setShowMemoryModal(true);
+          }}
+          onClearAllData={() => {
+            setShowSettingsModal(false);
+            clearAllData();
+          }}
+          onSignInGoogle={() => {
+            void signInWithGoogle().catch((error) => {
+              console.error('Google 登入失敗：', error);
+              Alert.alert(
+                '登入失敗',
+                '未能完成 Google 登入，請確認 Firebase 的 Google 登入已啟用，然後再試一次。'
+              );
+            });
+          }}
+          onSignOut={() => {
+            void signOutUser().catch((error) => {
+              console.error('Google 登出失敗：', error);
+              Alert.alert('登出失敗', '請稍後再試。');
+            });
+          }}
+          onBackupToCloud={() => {
+            void backupToCloud();
+          }}
+          onRestoreFromCloud={() => {
+            void restoreFromCloud();
+          }}
+          user={user}
+        />
+      </SafeAreaView>
+    </Modal>
     <Modal visible={showMemoryModal} animationType="slide" presentationStyle="pageSheet"><SafeAreaView style={styles.modalSafeArea}><ModalHeader title="已記住的分類" onClose={() => setShowMemoryModal(false)} /><MemoryList memories={merchantMemories} onForget={forgetMerchant} /></SafeAreaView></Modal>
     <Modal
-  visible={showAddModal}
-  animationType="slide"
-  presentationStyle="pageSheet"
-  onRequestClose={() => {
-    setShowAddModal(false);
-    setReceiptDraft(null);
-  }}
->
-  <SafeAreaView style={styles.modalSafeArea}>
-    <ModalHeader
-      title="新增記帳"
-      onClose={() => {
+      visible={showAddModal}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={() => {
         setShowAddModal(false);
         setReceiptDraft(null);
       }}
-    />
+    >
+      <SafeAreaView style={styles.modalSafeArea}>
+        <ModalHeader
+          title="新增記帳"
+          onClose={() => {
+            setShowAddModal(false);
+            setReceiptDraft(null);
+          }}
+        />
 
-    <AddEditTransactionScreen
-  key="manual-add"
-  initialTransaction={undefined}
-  isReceiptDraft={false}
-  merchantMemories={merchantMemories}
-  onScanReceipt={scanReceipt}
-  isScanningReceipt={isScanningReceipt}
-  onRememberMerchant={rememberMerchant}
-  onSave={(value) => {
-    addTransaction(value);
-    setActiveTab('總覽');
-  }}
-/>
-  </SafeAreaView>
-</Modal>
+        <AddEditTransactionScreen
+          key={receiptDraft?.id ?? 'manual-add'}
+          initialTransaction={receiptDraft ?? undefined}
+          isReceiptDraft={receiptDraft !== null}
+          merchantMemories={merchantMemories}
+          onScanReceipt={scanReceipt}
+          isScanningReceipt={isScanningReceipt}
+          onRememberMerchant={rememberMerchant}
+          onSave={(value) => {
+            addTransaction(value);
+            setShowAddModal(false);
+            setReceiptDraft(null);
+            setActiveTab('總覽');
+            Alert.alert('已儲存', '交易已加入本機記帳資料。');
+          }}
+        />
+      </SafeAreaView>
+    </Modal>
     <Modal visible={editingTransaction !== null} animationType="slide" presentationStyle="pageSheet"><SafeAreaView style={styles.modalSafeArea}><ModalHeader title="編輯交易" onClose={() => setEditingTransaction(null)} />{editingTransaction && (
-  <AddEditTransactionScreen
-    initialTransaction={editingTransaction}
-    merchantMemories={merchantMemories}
-    onScanReceipt={scanReceipt}
-    isScanningReceipt={isScanningReceipt}
-    onRememberMerchant={rememberMerchant}
-    saveLabel="儲存修改"
-    onSave={(value) => {
-      updateTransaction(value as Transaction);
-      setEditingTransaction(null);
-    }}
-    onDelete={() => {
-      if (editingTransaction) {
-        deleteTransaction(editingTransaction.id);
-      }
-    }}
-  />
-)}</SafeAreaView></Modal>
+      <AddEditTransactionScreen
+        initialTransaction={editingTransaction}
+        merchantMemories={merchantMemories}
+        onScanReceipt={scanReceipt}
+        isScanningReceipt={isScanningReceipt}
+        onRememberMerchant={rememberMerchant}
+        saveLabel="儲存修改"
+        onSave={(value) => {
+          updateTransaction(value as Transaction);
+          setEditingTransaction(null);
+        }}
+        onDelete={() => {
+          if (editingTransaction) {
+            deleteTransaction(editingTransaction.id);
+          }
+        }}
+      />
+    )}</SafeAreaView></Modal>
     <Modal visible={showFavoriteModal} animationType="slide" presentationStyle="pageSheet"><SafeAreaView style={styles.modalSafeArea}><ModalHeader title="新增常用交易" onClose={() => setShowFavoriteModal(false)} /><FavoriteEditorScreen onSave={(value) => { addFavorite(value); setShowFavoriteModal(false); }} /></SafeAreaView></Modal>
     <Modal visible={editingFavorite !== null} animationType="slide" presentationStyle="pageSheet"><SafeAreaView style={styles.modalSafeArea}><ModalHeader title="編輯常用交易" onClose={() => setEditingFavorite(null)} />{editingFavorite && <FavoriteEditorScreen initialFavorite={editingFavorite} saveLabel="儲存修改" onSave={(value) => { updateFavorite(value as Favorite); setEditingFavorite(null); }} onDelete={() => { if (editingFavorite) deleteFavorite(editingFavorite.id); }} />}</SafeAreaView></Modal>
   </SafeAreaView>;
@@ -500,7 +503,8 @@ function SettingsScreen({
   onBackupToCloud: () => void;
   onRestoreFromCloud: () => void;
   user: User | null;
-}) {  return (
+}) {
+  return (
     <ScrollView
       contentContainerStyle={styles.settingsScrollContent}
       showsVerticalScrollIndicator={false}
@@ -526,80 +530,80 @@ function SettingsScreen({
 
         <Text style={styles.settingsChevron}>›</Text>
       </Pressable>
-<Text style={styles.settingsSectionTitle}>帳戶</Text>
+      <Text style={styles.settingsSectionTitle}>帳戶</Text>
 
-{user ? (
-  <View style={styles.settingsRow}>
-    <View style={styles.settingsRowLeft}>
-      <View style={styles.settingsIconMemory}>
-        <Text style={styles.settingsIconText}>👤</Text>
-      </View>
+      {user ? (
+        <View style={styles.settingsRow}>
+          <View style={styles.settingsRowLeft}>
+            <View style={styles.settingsIconMemory}>
+              <Text style={styles.settingsIconText}>👤</Text>
+            </View>
 
-      <View style={styles.settingsAccountText}>
-        <Text style={styles.settingsRowTitle}>
-          {user.displayName || 'Google 帳戶'}
-        </Text>
-        <Text style={styles.settingsRowDescription}>
-          {user.email || '已登入'}
-        </Text>
-      </View>
-    </View>
+            <View style={styles.settingsAccountText}>
+              <Text style={styles.settingsRowTitle}>
+                {user.displayName || 'Google 帳戶'}
+              </Text>
+              <Text style={styles.settingsRowDescription}>
+                {user.email || '已登入'}
+              </Text>
+            </View>
+          </View>
 
-    <Pressable
-      onPress={onSignOut}
-      style={styles.settingsSignOutButton}
-    >
-      <Text style={styles.settingsSignOutText}>登出</Text>
-    </Pressable>
-  </View>
-) : (
-  <Pressable
-    style={styles.settingsRow}
-    onPress={onSignInGoogle}
-  >
-    <View style={styles.settingsRowLeft}>
-      <View style={styles.settingsGoogleIcon}>
-        <Text style={styles.settingsGoogleIconText}>G</Text>
-      </View>
-
-      <View style={styles.settingsAccountText}>
-        <Text style={styles.settingsRowTitle}>以 Google 登入</Text>
-        <Text style={styles.settingsRowDescription}>
-          登入後可啟用雲端備份與同步
-        </Text>
-      </View>
-    </View>
-
-    <Text style={styles.settingsChevron}>›</Text>
-  </Pressable>
-)}{user && (
-  <>
-    <Text style={styles.settingsSectionTitle}>雲端備份</Text>
-
-    <View style={styles.settingsCloudCard}>
-      <Text style={styles.settingsCloudTitle}>Google 雲端備份</Text>
-      <Text style={styles.settingsCloudText}>
-        手動儲存目前資料，或在新裝置還原最近一次備份。
-      </Text>
-
-      <View style={styles.settingsCloudActions}>
+          <Pressable
+            onPress={onSignOut}
+            style={styles.settingsSignOutButton}
+          >
+            <Text style={styles.settingsSignOutText}>登出</Text>
+          </Pressable>
+        </View>
+      ) : (
         <Pressable
-          style={styles.settingsBackupButton}
-          onPress={onBackupToCloud}
+          style={styles.settingsRow}
+          onPress={onSignInGoogle}
         >
-          <Text style={styles.settingsBackupButtonText}>立即備份</Text>
-        </Pressable>
+          <View style={styles.settingsRowLeft}>
+            <View style={styles.settingsGoogleIcon}>
+              <Text style={styles.settingsGoogleIconText}>G</Text>
+            </View>
 
-        <Pressable
-          style={styles.settingsRestoreButton}
-          onPress={onRestoreFromCloud}
-        >
-          <Text style={styles.settingsRestoreButtonText}>從雲端還原</Text>
+            <View style={styles.settingsAccountText}>
+              <Text style={styles.settingsRowTitle}>以 Google 登入</Text>
+              <Text style={styles.settingsRowDescription}>
+                登入後可啟用雲端備份與同步
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.settingsChevron}>›</Text>
         </Pressable>
-      </View>
-    </View>
-  </>
-)}
+      )}{user && (
+        <>
+          <Text style={styles.settingsSectionTitle}>雲端備份</Text>
+
+          <View style={styles.settingsCloudCard}>
+            <Text style={styles.settingsCloudTitle}>Google 雲端備份</Text>
+            <Text style={styles.settingsCloudText}>
+              手動儲存目前資料，或在新裝置還原最近一次備份。
+            </Text>
+
+            <View style={styles.settingsCloudActions}>
+              <Pressable
+                style={styles.settingsBackupButton}
+                onPress={onBackupToCloud}
+              >
+                <Text style={styles.settingsBackupButtonText}>立即備份</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.settingsRestoreButton}
+                onPress={onRestoreFromCloud}
+              >
+                <Text style={styles.settingsRestoreButtonText}>從雲端還原</Text>
+              </Pressable>
+            </View>
+          </View>
+        </>
+      )}
       <Text style={styles.settingsSectionTitle}>資料管理</Text>
 
       <View style={styles.settingsInfoCard}>
@@ -680,10 +684,10 @@ function AddEditTransactionScreen({
       <ScrollView contentContainerStyle={styles.formScrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.formScreen}>
           <Text style={styles.title}>{isReceiptDraft
-  ? '確認收據記帳'
-  : initialTransaction
-    ? '編輯記帳'
-    : '新增記帳'}</Text>
+            ? '確認收據記帳'
+            : initialTransaction
+              ? '編輯記帳'
+              : '新增記帳'}</Text>
 
           <Pressable
             style={styles.receiptScanButton}
