@@ -285,7 +285,7 @@ export default function App() {
       console.log('收據圖片字元數：', dataUrl.length);
 
       const response = await fetch(
-        'https://snapkihk.netlify.app/.netlify/functions/scan-receipt',
+        '/.netlify/functions/scan-receipt',
         {
           method: 'POST',
           headers: {
